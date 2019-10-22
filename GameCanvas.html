@@ -1,0 +1,386 @@
+<!doctype html>
+
+<head>
+    <title>Crosser</title>
+</head>
+
+<body>
+
+    <canvas id="gameCanvas" width="600" height="425"></canvas>
+
+    <script>
+        var canvas, canvasContext;
+        var name = ' ';
+        while (name == ' ' || name == null) {
+            name = prompt('what is your Name', 'Player') || ' ';
+        }
+        var difficulty = ' ';
+        while (difficulty != 'easy' && difficulty != 'medium' && difficulty != 'hard') {
+            difficulty = prompt('Hello ' + name + ', select your difficulty,(Easy,Medium or Hard)', 'Easy').toLowerCase()
+        }
+
+        window.onload = function() {
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+            document.addEventListener('keydown', keyPressed);
+            document.addEventListener('keyup', keyReleased);
+
+
+
+            setInterval(mainloop, 1000 / 50);
+        }
+        const ROADSIZE = 55;
+
+
+
+
+
+
+
+
+
+        var Road1Ypos = 39;
+
+        var playerXpos = 15;
+        var playerYpos = 15;
+        var playerSize = 15;
+        var playerspeed = 52;
+
+        var enemyXpos = 0;
+        var enemyYpos = [10, 20, 30];
+        var enemySize = 20;
+        var enemySpeed = 5;
+
+        var upKeyPressed = false;
+        var downKeyPressed = false;
+        var leftKeyPressed = false;
+        var rightKeyPressed = false;
+
+        const UP_KEY = 87;
+        const DOWN_KEY = 83;
+        const LEFT_KEY = 65;
+        const RIGHT_KEY = 68;
+
+        var lifecount = 0;
+
+        var POINTS = 1;
+
+
+        var MaxDspeed = difficultySpeed * 3;
+        var difficultySpeed = 0;
+
+
+        var oneClick = false;
+        var enemys = 8;
+
+        var gameStarting = true;
+
+        var singleloading = true;
+        var img = new Image(); //
+
+        var gamestop = false;
+
+        img.src = "Images/background.jfif"
+
+        function mainloop() { //runs code 50 times per second
+            if (gamestop == false) {
+
+
+
+                colorRect(0, 0, canvas.width, canvas.height, 'rgb(255, 226, 178)'); //background
+                imgload(img, 0, 0, canvas.width, canvas.height)
+
+                if (gameStarting == true) {
+                    startPos();
+                    lifecount = 0;
+                    setDifficulty();
+                    totalEnemies = enemys;
+                    for (i = 0; i < totalEnemies; i++) {
+                        makeEnemies();
+                    }
+
+                    gameStarting = false;
+
+                }
+                playerMove();
+                draw();
+                draw2();
+                Points();
+                death();
+
+
+                colorRect(0, 74, canvas.width, ROADSIZE, 'grey'); //Road1
+
+                colorRect(0, 165, canvas.width, ROADSIZE, 'grey'); //Road2
+
+                colorRect(0, 263, canvas.width, ROADSIZE, 'grey'); //Road3
+
+                colorRect()
+                colorRect(playerXpos, playerYpos, playerSize, playerSize, 'red');
+
+
+                //enemyMove();
+                //enemyTeleport();
+
+
+                drawEnemies();
+                moveEnemies();
+
+
+
+            }
+        }
+        //end
+
+        //gets the info from the prompt to set players difficulty
+        function setDifficulty() {
+            if (difficulty == 'easy') {
+                enemys = 10;
+                lifecount = 5;
+                difficultySpeed = 6;
+            }
+            if (difficulty == 'medium') {
+                enemys = 15;
+                lifecount = 3;
+                difficultySpeed = 8;
+
+            }
+            if (difficulty == 'hard') {
+                enemys = 20;
+                lifecount = 1;
+                difficultySpeed = 10;
+                console.log('h')
+            }
+        }
+        //end
+
+
+
+        //gives point when player reaches end also puts them back at the start
+        function Points() {
+            if (playerYpos < 5) {
+                playerYpos = canvas.height + 1 - playerSize * 2;
+                POINTS += 1;
+                makeEnemies();
+            }
+
+        }
+        //end
+
+
+        //end
+        //draws in lives counter
+        function draw() {
+            var ctx = document.getElementById('gameCanvas').getContext('2d');
+            ctx.font = '20px Arial';
+            ctx.fillStyle = "black";
+            ctx.fillText('Lives: ' + lifecount, 10, 30);
+
+        }
+        //draws in level counter
+        function draw2() {
+            var ctx = document.getElementById('gameCanvas').getContext('2d');
+            ctx.font = '20px Arial';
+            ctx.fillStyle = "black";
+            ctx.fillText('Level: ' + POINTS, canvas.width - 100, 30);
+
+        }
+        //end
+
+        //makes enemy move
+        /*function enemyMove() {
+            if (enemySpeed < MaxDspeed) {
+                enemySpeed = ((POINTS / 2) + difficultySpeed) / 2;
+            }
+            enemyXpos += enemySpeed;
+
+
+        }*/
+        //end
+
+
+        //loads image for background
+        function newIMg() {
+            if (singleloading == true) {
+                new Image();
+                singleloading = false
+            }
+        }
+        //end
+
+        //PLAYER STARTING POSITION
+        function startPos() {
+            if (gameStarting == true) {
+                playerXpos = canvas.width / 2 - playerSize / 2;
+            }
+            if (gameStarting == true) {
+                playerYpos = canvas.height + 1 - playerSize * 2;
+            }
+        }
+        //end
+
+        //stops the game
+        function death() {
+            if (lifecount < 1) {
+                gamestop = true;
+            }
+        }
+        //end
+
+
+        //makes player move
+        function playerMove() {
+            if (upKeyPressed == true & oneClick == true) {
+                playerYpos -= playerspeed;
+                oneClick = false;
+            }
+            if (downKeyPressed == true & oneClick == true) {
+                playerYpos += playerspeed;
+                oneClick = false;
+            }
+
+            if (rightKeyPressed == true & oneClick == true) {
+                playerXpos += playerspeed;
+                oneClick = false;
+
+            }
+            if (leftKeyPressed == true & oneClick == true) {
+                playerXpos -= playerspeed;
+                oneClick = false;
+
+
+            }
+            //end
+
+
+            //to stop player from clipping out of canvis
+
+            //left
+            if (playerXpos < -1) {
+                playerXpos = 0;
+            }
+            //right
+            if (playerXpos + playerSize > canvas.width + 1) {
+                playerXpos = canvas.width - playerSize;
+            }
+            //top
+            if (playerYpos < 0) {
+                playerYpos = 0;
+            }
+            //bottom
+            if (playerYpos + playerSize > canvas.height) {
+                playerYpos = canvas.height - playerSize - 14;
+            }
+        }
+        //end
+
+
+
+
+        //draws background image
+        function imgload(src, x, y, w, h) {
+            canvasContext.drawImage(src, x, y, w, h)
+        }
+        //end
+
+        //logs the WASD keys being pressed
+        function keyPressed(evt) {
+            if (evt.keyCode == LEFT_KEY) {
+                leftKeyPressed = true;
+            }
+            if (evt.keyCode == RIGHT_KEY) {
+                rightKeyPressed = true;
+            }
+            if (evt.keyCode == UP_KEY) {
+                upKeyPressed = true;
+            }
+            if (evt.keyCode == DOWN_KEY) {
+                downKeyPressed = true;
+            }
+        }
+        //end
+
+        //stops logging the WASD keys from being logged when they arent pressed
+        function keyReleased(evt) {
+
+            if (evt.keyCode == UP_KEY) {
+                upKeyPressed = false;
+                oneClick = true;
+
+            }
+            if (evt.keyCode == DOWN_KEY) {
+                downKeyPressed = false;
+                oneClick = true;
+            }
+
+            if (evt.keyCode == LEFT_KEY) {
+                leftKeyPressed = false;
+                oneClick = true;
+            }
+            if (evt.keyCode == RIGHT_KEY) {
+                rightKeyPressed = false;
+                oneClick = true;
+            }
+
+        }
+
+        var enemyCount = 0;
+
+
+        var totalEnemies = enemys;
+
+        var enemies = [];
+
+        function makeEnemies() {
+            var enemyPos = Math.floor(Math.random() * 3) + 1
+            var enemyXpos = Math.floor(Math.random() * 450) + 1;
+            const ENEMY_SIZE = 25;
+            var enemyXspeed = difficultySpeed + POINTS / 2;
+            //Math.floor(Math.random() * (12 - 4) + 4)
+            var enemyYpos = enemyPos * 92;
+
+
+            enemy = {
+                enemyXpos: enemyXpos,
+                enemyYpos: enemyYpos,
+                ENEMY_SIZE: ENEMY_SIZE,
+                enemyXspeed: enemyXspeed
+            }
+
+            enemies.push(enemy);
+
+        }
+
+
+        function drawEnemies() {
+            enemies.forEach(function(enemy, i) {
+                colorRect(enemy.enemyXpos, enemy.enemyYpos, enemy.ENEMY_SIZE, enemy.ENEMY_SIZE, 'green');
+            });
+        }
+
+        function moveEnemies() {
+            enemies.forEach(function(enemy, i) {
+                enemy.enemyXpos += enemy.enemyXspeed;
+                if (enemy.enemyXpos > canvas.width) {
+                    enemy.enemyXpos = 0;;
+                    enemy.enemyXspeed = difficultySpeed + POINTS / 2;
+                }
+                if (enemy.enemyXpos < playerXpos + playerSize && enemy.enemyXpos + enemy.ENEMY_SIZE > playerXpos && enemy.enemyYpos < playerYpos + playerSize && enemy.enemyYpos + enemy.ENEMY_SIZE > playerYpos) {
+                    lifecount -= 1;
+                    playerYpos = canvas.height + 1 - playerSize * 2;
+
+                }
+            });
+        }
+        //Math.floor(Math.random() * (18 - 4) + 4)
+
+
+
+        function colorRect(x, y, w, h, c) {
+            canvasContext.fillStyle = c;
+            canvasContext.fillRect(x, y, w, h)
+        }
+
+    </script>
+
+</body>
