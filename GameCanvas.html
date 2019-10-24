@@ -43,13 +43,10 @@
 
         var playerXpos = 15;
         var playerYpos = 15;
-        var playerSize = 15;
+        const PLAYERSIZE = 15;
         var playerspeed = 52;
 
-        var enemyXpos = 0;
-        var enemyYpos = [10, 20, 30];
-        var enemySize = 20;
-        var enemySpeed = 5;
+
 
         var upKeyPressed = false;
         var downKeyPressed = false;
@@ -103,8 +100,9 @@
 
                 }
                 playerMove();
-                draw();
-                draw2();
+                drawLives();
+                drawLevel();
+                
                 Points();
                 death();
 
@@ -116,11 +114,9 @@
                 colorRect(0, 263, canvas.width, ROADSIZE, 'grey'); //Road3
 
                 colorRect()
-                colorRect(playerXpos, playerYpos, playerSize, playerSize, 'red');
+                colorRect(playerXpos, playerYpos, PLAYERSIZE, PLAYERSIZE, 'red');
 
 
-                //enemyMove();
-                //enemyTeleport();
 
 
                 drawEnemies();
@@ -159,18 +155,17 @@
         //gives point when player reaches end also puts them back at the start
         function Points() {
             if (playerYpos < 5) {
-                playerYpos = canvas.height + 1 - playerSize * 2;
                 POINTS += 1;
-                makeEnemies();
+                playerYpos = canvas.height + 1 - PLAYERSIZE * 2;
             }
 
         }
         //end
 
 
-        //end
+   
         //draws in lives counter
-        function draw() {
+        function drawLives() {
             var ctx = document.getElementById('gameCanvas').getContext('2d');
             ctx.font = '20px Arial';
             ctx.fillStyle = "black";
@@ -178,24 +173,13 @@
 
         }
         //draws in level counter
-        function draw2() {
+        function drawLevel() {
             var ctx = document.getElementById('gameCanvas').getContext('2d');
             ctx.font = '20px Arial';
             ctx.fillStyle = "black";
             ctx.fillText('Level: ' + POINTS, canvas.width - 100, 30);
 
         }
-        //end
-
-        //makes enemy move
-        /*function enemyMove() {
-            if (enemySpeed < MaxDspeed) {
-                enemySpeed = ((POINTS / 2) + difficultySpeed) / 2;
-            }
-            enemyXpos += enemySpeed;
-
-
-        }*/
         //end
 
 
@@ -211,18 +195,36 @@
         //PLAYER STARTING POSITION
         function startPos() {
             if (gameStarting == true) {
-                playerXpos = canvas.width / 2 - playerSize / 2;
+                playerXpos = canvas.width / 2 - PLAYERSIZE / 2;
             }
             if (gameStarting == true) {
-                playerYpos = canvas.height + 1 - playerSize * 2;
+                playerYpos = canvas.height + 1 - PLAYERSIZE * 2;
             }
+        }
+        function drawEndScore() {
+            var ctx = document.getElementById('gameCanvas').getContext('2d');
+            ctx.font = '20px Arial';
+            ctx.fillStyle = "black";
+            ctx.fillText(name + ' Your score was: ' + POINTS , canvas.height / 2 , 40);
+
+        }
+        function drawEndRestart() {
+            var ctx = document.getElementById('gameCanvas').getContext('2d');
+            ctx.font = '20px Arial';
+            ctx.fillStyle = "black";
+            ctx.fillText('press ctrl + R to restart' , canvas.height / 2 + 5 , 65);
+
         }
         //end
 
         //stops the game
         function death() {
             if (lifecount < 1) {
+
                 gamestop = true;
+                drawEndScore();
+                drawEndRestart();
+                
             }
         }
         //end
@@ -260,16 +262,16 @@
                 playerXpos = 0;
             }
             //right
-            if (playerXpos + playerSize > canvas.width + 1) {
-                playerXpos = canvas.width - playerSize;
+            if (playerXpos + PLAYERSIZE > canvas.width + 1) {
+                playerXpos = canvas.width - PLAYERSIZE;
             }
             //top
             if (playerYpos < 0) {
                 playerYpos = 0;
             }
             //bottom
-            if (playerYpos + playerSize > canvas.height) {
-                playerYpos = canvas.height - playerSize - 14;
+            if (playerYpos + PLAYERSIZE > canvas.height) {
+                playerYpos = canvas.height - PLAYERSIZE - 14;
             }
         }
         //end
@@ -332,12 +334,12 @@
         var enemies = [];
 
         function makeEnemies() {
-            var enemyPos = Math.floor(Math.random() * 3) + 1
-            var enemyXpos = Math.floor(Math.random() * 450) + 1;
+            var enemyPos = Math.floor(Math.random() * 3) + 1;
+            var enemyYpos = enemyPos * 92;
+            var enemyXpos = Math.floor(Math.random() * 600) + 1;
             const ENEMY_SIZE = 25;
             var enemyXspeed = difficultySpeed + POINTS / 2;
             //Math.floor(Math.random() * (12 - 4) + 4)
-            var enemyYpos = enemyPos * 92;
 
 
             enemy = {
@@ -362,12 +364,14 @@
             enemies.forEach(function(enemy, i) {
                 enemy.enemyXpos += enemy.enemyXspeed;
                 if (enemy.enemyXpos > canvas.width) {
-                    enemy.enemyXpos = 0;;
+                    enemy.enemyXpos = Math.floor(Math.random() * 2) + 1;
                     enemy.enemyXspeed = difficultySpeed + POINTS / 2;
+
+                    enemy.enemyYpos = (Math.floor(Math.random() * 3) + 1) * 92;
                 }
-                if (enemy.enemyXpos < playerXpos + playerSize && enemy.enemyXpos + enemy.ENEMY_SIZE > playerXpos && enemy.enemyYpos < playerYpos + playerSize && enemy.enemyYpos + enemy.ENEMY_SIZE > playerYpos) {
+                if (enemy.enemyXpos < playerXpos + PLAYERSIZE && enemy.enemyXpos + enemy.ENEMY_SIZE > playerXpos && enemy.enemyYpos < playerYpos + PLAYERSIZE && enemy.enemyYpos + enemy.ENEMY_SIZE > playerYpos) {
                     lifecount -= 1;
-                    playerYpos = canvas.height + 1 - playerSize * 2;
+                    playerYpos = canvas.height + 1 - PLAYERSIZE * 2;
 
                 }
             });
@@ -382,5 +386,11 @@
         }
 
     </script>
+    <br>
+    <h3> Use WASD keys to move<br>
+        Get to the top of the screen to get points<br>
+        Try to avoid the green squares<br>
+        You lose when you run out of lives<br></h3>
+
 
 </body>
