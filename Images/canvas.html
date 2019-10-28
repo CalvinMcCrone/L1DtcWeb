@@ -1,0 +1,159 @@
+<!doctype html>
+
+<head>
+    <title>Canvas</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <script>
+        var canvas, canvasContext;
+
+        window.onload = function() {
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+
+            document.addEventListener('keypress', keyPressed);
+            document.addEventListener('keyup', keyReleased);
+
+            for (var i = 0; i < 15; i++) {
+                bricks.push(randBrick());
+            }
+
+            setInterval(mainloop, 1000 / 50);
+        }
+
+        //Player Variables
+        var playerXpos = 0;
+        var playerYpos = 0;
+        var playerSize = 20;
+        var playerXspeed = 5;
+        var playerYspeed = 7;
+        var playerColor = 'red'
+
+        var score = 0;
+        var bricks = [];
+
+        const A_KEY = 65;
+        const D_KEY = 68;
+        var aKeyPressed = false;
+        var dKeyPressed = false;
+
+        var gameStarting = true;
+
+        function mainloop() { //Loop Runs Code 50 Times Per Second
+            colorRect(0, 0, canvas.width, canvas.height, 'black'); //Background
+            colorRect(playerXpos, playerYpos, playerSize, playerSize, playerColor); //Player
+            playerMove();
+            randBrick();
+            bricksDraw();
+            bricksMove();
+            if (gameStarting == true) {
+                startPos();
+                gameStarting = false;
+            }
+        }
+
+        function playerMove() {
+            if (aKeyPressed) {
+                playerXpos -= playerXspeed;
+            }
+
+            if (dKeyPressed) {
+                playerXpos += playerXspeed;
+            }
+
+            if (aKeyPressed == true && playerXpos < 0) {
+                playerXpos += playerXspeed;
+            }
+
+            if (dKeyPressed == true && playerXpos > canvas.width - playerSize) {
+                playerXpos -= playerXspeed;
+            }
+        }
+
+        function randBrick() {
+            var brickSize = Math.floor(Math.random() * (50 - 10) + 10);
+            var brickXpos = Math.floor(Math.random() * (canvas.width - brickSize));
+            var brickYpos = Math.floor(Math.random() * (canvas.height - brickSize));
+            var brickXspeed = Math.floor(Math.random() * (15 - 2) + 2);
+            var brickYspeed = Math.floor(Math.random() * (15 - 2) + 2);
+
+            var newBrickObject = {
+                brickSize: brickSize,
+                brickXpos: brickXpos,
+                brickYpos: brickYpos,
+                brickXspeed: brickXspeed,
+                brickYspeed: brickYspeed,
+            }
+
+            return newBrickObject;
+        }
+
+        function bricksDraw() {
+            bricks.forEach(function(brick, index, array) {
+                colorRect(brick.brickXpos, brick.brickYpos, brick.brickSize, brick.brickSize, 'blue');
+            });
+        }
+
+        function bricksMove() {
+            bricks.forEach(function(brick, index, array) {
+                brick.brickXpos += brick.brickXspeed;
+                brick.brickYpos += brick.brickYspeed;
+
+                if (brick.brickXpos > canvas.width - brick.brickSize) {
+                    brick.brickXspeed *= -1;
+                }
+
+                if (brick.brickXpos < 0) {
+                    brick.brickXspeed *= -1;
+                }
+
+                if (brick.brickYpos > canvas.height) {
+                    brick.brickYpos = 0;
+                }
+
+                if (brick.brickYpos > canvas.height - 5) {
+                    brick.brickSize = Math.floor(Math.random() * (10 - 5) + 5);
+                    brick.brickYpos = 0;
+                    score++;
+                    console.log(score);
+                }
+            });
+        }
+
+        //Function To Draw Coloured Rectangles On Canvas
+        function colorRect(x, y, w, h, c) {
+            canvasContext.fillStyle = c;
+            canvasContext.fillRect(x, y, w, h);
+        }
+
+        function keyPressed(evt) {
+            console.log(evt.keyCode);
+            if (evt.keyCode == A_KEY) {
+                aKeyPressed = true;
+            }
+
+            if (evt.keyCode == D_KEY) {
+                dKeyPressed = true;
+            }
+        }
+
+        function keyReleased(evt) {
+            if (evt.keyCode == A_KEY) {
+                aKeyPressed = false;
+            }
+
+            if (evt.keyCode == D_KEY) {
+                dKeyPressed = false;
+            }
+        }
+
+        function startPos() {
+            playerXpos = canvas.width / 2 - (playerSize / 2);
+            playerYpos = canvas.height - (2 * playerSize);
+        }
+
+    </script>
+</body>
